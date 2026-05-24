@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explore India</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;scroll-behavior:smooth;}
+
+    /* ── Theme Variables ── */
+    :root {
+      --bg-gradient: linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)), url("https://wallpaperaccess.com/full/2023243.jpg");
+      --text-color: white;
+      --nav-bg: rgba(0,0,0,0.4);
+      --card-bg: rgba(255,255,255,0.12);
+      --panel-bg: rgba(15,15,15,0.97);
+      --panel-border: rgba(255,215,0,0.3);
+      --input-bg: rgba(255,255,255,0.07);
+      --input-border: rgba(255,255,255,0.13);
+      --dots-opacity: rgba(255,255,255,0.06);
+    }
+
+    [data-theme="light"] {
+      --bg-gradient: linear-gradient(rgba(255,255,255,0.75),rgba(255,255,255,0.75)), url("https://wallpaperaccess.com/full/2023243.jpg");
+      --text-color: #222;
+      --nav-bg: rgba(255,255,255,0.85);
+      --card-bg: rgba(0,0,0,0.06);
+      --panel-bg: rgba(255,255,255,0.98);
+      --panel-border: rgba(212,175,55,0.5);
+      --input-bg: rgba(0,0,0,0.04);
+      --input-border: rgba(0,0,0,0.15);
+      --dots-opacity: rgba(0,0,0,0.04);
+    }
+
+    body{
+      font-family:'Poppins',sans-serif;
+      background-image: var(--bg-gradient);
+      background-size:cover;background-position:center;background-repeat:no-repeat;
+      color: var(--text-color);overflow-x:hidden;
+      transition: background-image 0.3s, color 0.3s;
+    }
+
+    body::before{
+      content:"";position:fixed;width:200%;height:200%;
+      background:radial-gradient(circle, var(--dots-opacity) 2%,transparent 3%);
+      background-size:90px 90px;animation:bgmove 25s linear infinite;z-index:-1;
+    }
+
+    @keyframes bgmove{from{transform:translate(0,0)}to{transform:translate(-300px,-300px)}}
+
+    nav{
+      width:100%;padding:16px 45px;display:flex;justify-content:space-between;align-items:center;
+      position:fixed;top:0;background: var(--nav-bg);backdrop-filter:blur(10px);z-index:1000;
+      animation:navSlide 1s ease;
+      transition: background 0.3s;
+    }
+
+    @keyframes navSlide{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+
+    .nav-left{display:flex;align-items:center;flex-wrap:wrap;}
+
+    .logo{width:72px;height:72px;border-radius:50%;margin-right:20px;animation:glow 3s infinite alternate;transition:0.4s;}
+    .logo:hover{transform:scale(1.1) rotate(10deg);}
+
+    @keyframes glow{from{box-shadow:0 0 10px gold}to{box-shadow:0 0 35px orange}}
+
+    nav a{text-decoration:none;color: var(--text-color);margin:0 16px;font-size:18px;font-weight:500;position:relative;transition:0.3s;}
+    nav a::after{content:"";position:absolute;width:0%;height:3px;left:0;bottom:-6px;background:gold;transition:0.4s;}
+    nav a:hover::after{width:100%;}
+    nav a:hover{color:gold;}
+
+    .profile-nav{display:flex;align-items:center;gap:15px;position:relative;}
+
+    /* ── Username button in nav ── */
+    #navUserBtn{
+      background:none;
+      border:1.5px solid gold;
+      color:gold;
+      font-family:'Poppins',sans-serif;
+      font-size:16px;
+      font-weight:600;
+      padding:8px 18px;
+      border-radius:10px;
+      cursor:pointer;
+      transition:0.3s;
+      display:flex;align-items:center;gap:6px;
+    }
+    #navUserBtn:hover{background:rgba(255,215,0,0.12);transform:scale(1.04);}
+    #navUserBtn .arrow{font-size:11px;transition:transform 0.3s;}
+    #navUserBtn.open .arrow{transform:rotate(180deg);}
+
+    .nav-logout{
+      padding:10px 18px;border:none;border-radius:10px;
+      background:linear-gradient(45deg,#d50000,#ff1744);
+      color:white;cursor:pointer;transition:0.3s;font-weight:bold;
+    }
+    .nav-logout:hover{transform:scale(1.08);}
+
+    /* ── Theme Toggle Button ── */
+    .theme-toggle-btn {
+      background: none;
+      border: 1.5px solid gold;
+      color: gold;
+      font-size: 20px;
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.3s;
+    }
+    .theme-toggle-btn:hover {
+      background: rgba(255, 215, 0, 0.12);
+      transform: scale(1.08) rotate(15deg);
+    }
+
+    /* ── Profile Panel ── */
+    #profilePanel{
+      display:none;
+      position:absolute;
+      top:calc(100% + 14px);
+      right:0;
+      width:310px;
+      background: var(--panel-bg);
+      border:1px solid var(--panel-border);
+      border-radius:18px;
+      padding:1.4rem;
+      box-shadow:0 20px 50px rgba(0,0,0,0.7);
+      backdrop-filter:blur(18px);
+      z-index:2000;
+      animation:panelIn 0.25s ease;
+      transition: background 0.3s, border 0.3s;
+    }
+
+    @keyframes panelIn{
+      from{opacity:0;transform:translateY(-10px) scale(0.97)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+
+    .panel-avatar{
+      width:50px;height:50px;border-radius:50%;
+      background:linear-gradient(135deg,#ff6f00,#ffd54f);
+      display:flex;align-items:center;justify-content:center;
+      font-size:20px;font-weight:700;color:#1a1a1a;flex-shrink:0;
+    }
+
+    .panel-header{
+      display:flex;align-items:center;gap:12px;
+      padding-bottom:1rem;margin-bottom:1rem;
+      border-bottom:1px solid rgba(255,255,255,0.1);
+    }
+    [data-theme="light"] .panel-header {
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .panel-header .meta p:first-child{font-weight:600;font-size:15px;color:#ffd54f;margin:0;}
+    .panel-header .meta p:last-child{font-size:12px;color:rgba(255,255,255,0.45);margin:0;}
+    [data-theme="light"] .panel-header .meta p:last-child { color: rgba(0,0,0,0.5); }
+
+    .panel-close{
+      margin-left:auto;background:none;border:none;
+      color:rgba(255,255,255,0.35);font-size:20px;cursor:pointer;line-height:1;
+      transition:color 0.2s;
+    }
+    [data-theme="light"] .panel-close { color: rgba(0,0,0,0.4); }
+    .panel-close:hover{color: var(--text-color);}
+
+    .panel-section-label{
+      font-size:10px;color:rgba(255,255,255,0.4);
+      text-transform:uppercase;letter-spacing:0.1em;margin:0 0 8px;
+    }
+    [data-theme="light"] .panel-section-label { color: rgba(0,0,0,0.5); }
+
+    .info-row{
+      display:flex;align-items:center;gap:10px;
+      padding:9px 12px;background:rgba(255,255,255,0.06);
+      border-radius:10px;margin-bottom:6px;
+    }
+    [data-theme="light"] .info-row { background: rgba(0,0,0,0.04); }
+    .info-row .icon{font-size:15px;color:#ffd54f;}
+    .info-row span{font-size:13px;color: var(--text-color);word-break:break-all;}
+
+    .panel-divider{
+      border:none;border-top:1px solid rgba(255,255,255,0.08);
+      margin:1rem 0;
+    }
+    [data-theme="light"] .panel-divider { border-top: 1px solid rgba(0,0,0,0.08); }
+
+    .panel-input{
+      width:100%;
+      padding:9px 12px;
+      background: var(--input-bg);
+      border:1px solid var(--input-border);
+      border-radius:10px;
+      color: var(--text-color);
+      font-family:'Poppins',sans-serif;
+      font-size:13px;
+      outline:none;
+      margin-bottom:7px;
+      transition:border-color 0.2s, background 0.3s, border 0.3s;
+    }
+    .panel-input:focus{border-color:rgba(255,215,0,0.5);}
+    .panel-input::placeholder{color:rgba(255,255,255,0.3);}
+    [data-theme="light"] .panel-input::placeholder { color: rgba(0,0,0,0.4); }
+
+    #passMsg{
+      font-size:12px;min-height:18px;margin:0 0 8px;
+      color:#ff5252;transition:color 0.2s;
+    }
+    #passMsg.success{color:#69f0ae;}
+    [data-theme="light"] #passMsg.success { color: #00c853; }
+
+    .update-btn{
+      width:100%;padding:10px;
+      background:linear-gradient(45deg,#ff6f00,#ff9100);
+      border:none;border-radius:10px;
+      color:white;font-weight:600;font-family:'Poppins',sans-serif;
+      font-size:13px;cursor:pointer;transition:0.3s;
+    }
+    .update-btn:hover{transform:scale(1.03);box-shadow:0 6px 18px rgba(255,111,0,0.4);}
+
+    /* ── Hero ── */
+    .hero{height:100vh;display:flex;justify-content:center;align-items:center;text-align:center;padding:20px;}
+    .hero-content{max-width:950px;animation:zoom 1.5s ease;}
+    @keyframes zoom{from{opacity:0;transform:scale(0.7)}to{opacity:1;transform:scale(1)}}
+
+    h1{font-size:95px;text-shadow:0 0 10px gold,0 0 20px orange,0 0 40px red;animation:floating 4s ease-in-out infinite;}
+    .india{color:gold;}
+    @keyframes floating{0%{transform:translateY(0)}50%{transform:translateY(-18px)}100%{transform:translateY(0)}}
+
+    #welcome{margin-top:20px;font-size:34px;color:#ffd54f;animation:blink 2s infinite;}
+    @keyframes blink{0%{opacity:1}50%{opacity:0.5}100%{opacity:1}}
+
+    .subtitle{margin-top:24px;font-size:25px;line-height:1.8;animation:fadeText 3s infinite alternate;}
+    @keyframes fadeText{from{opacity:0.5}to{opacity:1}}
+
+    .hero-buttons{margin-top:40px;}
+    .hero-buttons button{padding:16px 34px;margin:12px;border:none;border-radius:14px;font-size:18px;cursor:pointer;transition:0.4s;}
+    .explore-btn{background:linear-gradient(45deg,#ff6f00,#ff9100);color:white;}
+    .hero-buttons button:hover{transform:translateY(-8px) scale(1.08);box-shadow:0 15px 25px rgba(0,0,0,0.5);}
+
+    /* ── Features ── */
+    .features{width:92%;margin:auto;padding-bottom:80px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:30px;}
+    .card{background: var(--card-bg);backdrop-filter:blur(10px);border-radius:20px;padding:30px;text-align:center;transition:0.5s;box-shadow:0 8px 25px rgba(0,0,0,0.4);animation:cardShow 1.5s ease;}
+    @keyframes cardShow{from{opacity:0;transform:translateY(80px)}to{opacity:1;transform:translateY(0)}}
+    .card:hover{transform:translateY(-15px) rotate(2deg);background:rgba(255,255,255,0.2);box-shadow:0 15px 35px rgba(255,215,0,0.4);}
+    [data-theme="light"] .card:hover { background: rgba(0,0,0,0.08); }
+    .card h2{color:gold;margin-bottom:16px;font-size:28px;}
+    .card p{line-height:1.7;font-size:17px;}
+    .card button{margin-top:18px;padding:12px 24px;border:none;border-radius:10px;background:linear-gradient(45deg,#2962ff,#00b0ff);color:white;cursor:pointer;transition:0.3s;}
+    .card button:hover{transform:scale(1.08);}
+
+    /* ── Details ── */
+    .details{width:90%;margin:50px auto;background: var(--card-bg);backdrop-filter:blur(10px);border-radius:20px;padding:40px;animation:fadeUp 1.5s ease;transition: background 0.3s;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(50px)}to{opacity:1;transform:translateY(0)}}
+    .details h2{color:gold;margin-bottom:18px;font-size:42px;}
+    .details p{font-size:20px;line-height:1.9;}
+
+    footer{text-align:center;padding:28px;background:rgba(0,0,0,0.7);font-size:17px;color: white;animation:footerGlow 3s infinite alternate;}
+    @keyframes footerGlow{from{box-shadow:0 0 10px black}to{box-shadow:0 0 20px gold}}
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <div class="nav-left">
+      <a href="index.html">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgwrJoMVlKokwzTo6Fqmq-lt5TBCbwBdibbzXEG2h1&s" class="logo">
+      </a>
+      <a href="index.html">Home</a>
+      <a href="places.html">Places</a>
+      <a href="about.html">About</a>
+      <a href="https://share.google/Q0v4dzR555OTlI2wP">Enquiry</a>
+    </div>
+
+    <div class="profile-nav">
+
+      <!-- Clickable username button -->
+      <button id="navUserBtn" onclick="toggleProfile()" aria-expanded="false" aria-controls="profilePanel">
+        <span id="navUser">Guest</span>
+        <span class="arrow">▾</span>
+      </button>
+
+      <!-- Profile Panel (dropdown) -->
+      <div id="profilePanel" role="dialog" aria-label="Profile panel">
+
+        <div class="panel-header">
+          <div class="panel-avatar" id="avatarInitial">G</div>
+          <div class="meta">
+            <p id="panelName">Guest</p>
+            <p>Traveller</p>
+          </div>
+          <button class="panel-close" onclick="closeProfile()" aria-label="Close profile panel">✕</button>
+        </div>
+
+        <!-- Account Info -->
+        <p class="panel-section-label">Account info</p>
+
+        <div class="info-row">
+          <span class="icon">👤</span>
+          <span id="panelUsername">—</span>
+        </div>
+
+        <div class="info-row">
+          <span class="icon">✉️</span>
+          <span id="panelEmail">—</span>
+        </div>
+
+        <hr class="panel-divider">
+
+        <!-- Change Password -->
+        <p class="panel-section-label">Change password</p>
+
+        <input class="panel-input" type="password" id="oldPass" placeholder="Current password">
+        <input class="panel-input" type="password" id="newPass" placeholder="New password (min 6 chars)">
+        <input class="panel-input" type="password" id="confPass" placeholder="Confirm new password">
+
+        <p id="passMsg"></p>
+
+        <button class="update-btn" onclick="changePassword()">Update password</button>
+
+      </div>
+
+      <button onclick="logout()" class="nav-logout">Logout</button>
+      
+      <!-- Theme Toggle Button at the rightest end -->
+      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle light and dark mode">☀️</button>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Explore <span class="india">India</span></h1>
+      <h2 id="welcome"></h2>
+      <p class="subtitle">
+        Discover magical adventures, breathtaking landscapes,<br>
+        colorful festivals, delicious foods and ancient culture.<br>
+        Travel through mountains, beaches, royal palaces,<br>
+        wildlife and unforgettable experiences.
+      </p>
+      <div class="hero-buttons">
+        <button class="explore-btn" onclick="scrollToSection()">Explore More</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Feature Cards ── -->
+  <section class="features">
+    <div class="card">
+      <h2>Festivals 🎉</h2>
+      <p>Experience India's colorful traditions, lights, music and celebrations.</p>
+      <a href="#festival"><button>Know More</button></a>
+    </div>
+    <div class="card">
+      <h2>Food 🍛</h2>
+      <p>Taste delicious Indian cuisines, sweets and street foods.</p>
+      <a href="#food"><button>Know More</button></a>
+    </div>
+    <div class="card">
+      <h2>Mountains 🏔️</h2>
+      <p>Explore snowy valleys, rivers and adventures.</p>
+      <a href="#mountains"><button>Know More</button></a>
+    </div>
+    <div class="card">
+      <h2>Monuments 🕌</h2>
+      <p>Discover India's royal palaces and historical wonders.</p>
+      <a href="#monuments"><button>Know More</button></a>
+    </div>
+    <div class="card">
+      <h2>Beaches 🌊</h2>
+      <p>Relax at Goa and Kerala's beautiful beaches.</p>
+    </div>
+    <div class="card">
+      <h2>Wildlife 🐅</h2>
+      <p>Enjoy jungle safaris and India's rich biodiversity.</p>
+    </div>
+  </section>
+
+  <!-- ── Detail Sections ── -->
+  <section class="details" id="festival">
+    <h2>Indian Festivals 🎉</h2>
+    <p>India is called the land of festivals. Diwali, Holi, Eid, Christmas, Durga Puja and Navratri are celebrated with lights, colors, dance and joy. Every state has its own traditions and cultural celebrations. Tourists from around the world visit India to enjoy its energetic atmosphere, traditional clothing, music and celebrations.</p>
+  </section>
+
+  <section class="details" id="food">
+    <h2>Indian Food 🍛</h2>
+    <p>Indian cuisine is famous worldwide. From spicy biryani and butter chicken to dosa, idli and pani puri, India offers endless flavors. Indian sweets like gulab jamun, jalebi and rasgulla are loved globally. Every Indian region has unique dishes and cooking styles.</p>
+  </section>
+
+  <section class="details" id="mountains">
+    <h2>Mountains 🏔️</h2>
+    <p>The Himalayas are among the world's most beautiful mountain ranges. Kashmir, Manali, Shimla and Leh-Ladakh attract tourists with snowfall, valleys and adventures. Trekking, camping, skiing and river rafting make India's mountain regions exciting for nature lovers.</p>
+  </section>
+
+  <section class="details" id="monuments">
+    <h2>Historical Monuments 🕌</h2>
+    <p>India has magnificent monuments reflecting its glorious history. The Taj Mahal, Red Fort, Qutub Minar and Hawa Mahal attract millions of tourists every year. These monuments represent ancient Indian architecture, royal heritage and artistic beauty.</p>
+  </section>
+
+  <footer>© 2026 Explore India | Tourist Things</footer>
+
+  <script>
+    /* ── Load user from localStorage ── */
+    const savedUser  = localStorage.getItem("username") || "Guest";
+    const savedEmail = localStorage.getItem("email")    || "Not provided";
+
+    /* Nav button label */
+    document.getElementById("navUser").textContent = savedUser;
+
+    /* Welcome message */
+    document.getElementById("welcome").innerHTML =
+      savedUser !== "Guest"
+        ? "Welcome " + savedUser + " 👋"
+        : "Welcome Guest 👋";
+
+    /* Populate panel */
+    document.getElementById("panelName").textContent     = savedUser;
+    document.getElementById("panelUsername").textContent = savedUser;
+    document.getElementById("panelEmail").textContent    = savedEmail;
+    document.getElementById("avatarInitial").textContent = savedUser.charAt(0).toUpperCase();
+
+    /* ── Toggle profile panel ── */
+    function toggleProfile(){
+      const panel = document.getElementById("profilePanel");
+      const btn   = document.getElementById("navUserBtn");
+      const open  = panel.style.display === "block";
+      panel.style.display = open ? "none" : "block";
+      btn.classList.toggle("open", !open);
+      btn.setAttribute("aria-expanded", String(!open));
+      if(!open) document.getElementById("passMsg").textContent = "";
+    }
+
+    function closeProfile(){
+      document.getElementById("profilePanel").style.display = "none";
+      document.getElementById("navUserBtn").classList.remove("open");
+      document.getElementById("navUserBtn").setAttribute("aria-expanded","false");
+    }
+
+    /* Close panel when clicking outside */
+    document.addEventListener("click", function(e){
+      const panel = document.getElementById("profilePanel");
+      const btn   = document.getElementById("navUserBtn");
+      if(panel.style.display === "block" && !panel.contains(e.target) && !btn.contains(e.target)){
+        closeProfile();
+      }
+    });
+
+    /* ── Change Password ── */
+    function changePassword(){
+      const oldPass  = document.getElementById("oldPass").value.trim();
+      const newPass  = document.getElementById("newPass").value.trim();
+      const confPass = document.getElementById("confPass").value.trim();
+      const msg      = document.getElementById("passMsg");
+
+      msg.className = "";
+
+      if(!oldPass || !newPass || !confPass){
+        msg.textContent = "Please fill in all password fields."; return;
+      }
+
+      /* Compare against stored password */
+      const storedPassword = localStorage.getItem("password") || "";
+
+      if(oldPass !== storedPassword){
+        msg.textContent = "Current password is incorrect."; return;
+      }
+
+      if(newPass.length < 6){
+        msg.textContent = "New password must be at least 6 characters."; return;
+      }
+
+      if(newPass !== confPass){
+        msg.textContent = "New passwords do not match."; return;
+      }
+
+      if(newPass === oldPass){
+        msg.textContent = "New password must be different from the current one."; return;
+      }
+
+      /* Save new password */
+      localStorage.setItem("password", newPass);
+
+      msg.className   = "success";
+      msg.textContent = "✓ Password updated successfully!";
+
+      document.getElementById("oldPass").value  = "";
+      document.getElementById("newPass").value  = "";
+      document.getElementById("confPass").value = "";
+    }
+
+    /* ── Logout ── */
+    function logout(){
+      localStorage.removeItem("username");
+      localStorage.removeItem("email");
+      alert("Logged Out Successfully");
+      window.location.href = "login.html";
+    }
+
+    /* ── Scroll to features ── */
+    function scrollToSection(){
+      document.querySelector(".features").scrollIntoView({ behavior:"smooth" });
+    }
+
+    /* ── Theme Mode Controller ── */
+    // Check saved choice or default to dark
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+    updateToggleIcon(savedTheme);
+
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute("data-theme");
+      const newTheme = currentTheme === "light" ? "dark" : "light";
+      
+      document.documentElement.setAttribute("data-theme", newTheme);
+      localStorage.setItem("theme", newTheme);
+      updateToggleIcon(newTheme);
+    }
+
+    function updateToggleIcon(theme) {
+      const toggleBtn = document.getElementById("themeToggleBtn");
+      if (theme === "light") {
+        toggleBtn.textContent = "🌙"; // Show Moon when in Light Mode
+      } else {
+        toggleBtn.textContent = "☀️"; // Show Sun when in Dark Mode
+      }
+    }
+  </script>
+
+</body>
+</html>
